@@ -1,0 +1,3001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SentinelURL - URL Security Scanner</title>
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}">
+
+<style>
+/* ============================================================
+   LIVE SECURITY UI
+   ============================================================ */
+
+.live-scan {
+    display: none;
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid rgba(0,230,181,.20);
+    border-radius: 14px;
+    background: rgba(0,230,181,.025);
+}
+
+.live-scan.active {
+    display: block;
+    animation: liveAppear .25s ease;
+}
+
+@keyframes liveAppear {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.live-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    margin-bottom: 13px;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #00e6b5;
+
+    box-shadow:
+        0 0 12px #00e6b5;
+
+    animation: livePulse 1s infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% {
+        opacity: .35;
+        transform: scale(.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.progress-track {
+    width: 100%;
+    height: 6px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,.06);
+}
+
+.progress-fill {
+    width: 0;
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00a987,
+            #00e6b5,
+            #35f5d0
+        );
+
+    box-shadow:
+        0 0 12px
+        rgba(0,230,181,.35);
+
+    transition:
+        width .35s ease;
+}
+
+.live-text {
+    margin-top: 9px;
+
+    color:
+        var(--text-soft);
+
+    font-size: 10px;
+}
+
+
+/* ============================================================
+   LIVE SECURITY ACTIVITY
+   ============================================================ */
+
+.activity-box {
+    margin-top: 18px;
+
+    padding: 18px 20px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(11,24,30,.95),
+            rgba(7,17,22,.95)
+        );
+}
+
+.activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 14px;
+}
+
+.activity-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.activity-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 5px 9px;
+
+    border:
+        1px solid
+        rgba(37,229,139,.2);
+
+    border-radius: 999px;
+
+    color:
+        var(--safe);
+
+    background:
+        rgba(37,229,139,.04);
+
+    font-size: 9px;
+}
+
+.activity-status-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background:
+        var(--safe);
+
+    box-shadow:
+        0 0 8px
+        rgba(37,229,139,.7);
+}
+
+.activity-list {
+    display: grid;
+    gap: 7px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 9px 11px;
+
+    border:
+        1px solid
+        rgba(22,52,61,.75);
+
+    border-radius: 9px;
+
+    background:
+        rgba(255,255,255,.012);
+
+    color:
+        var(--text-soft);
+
+    font-size: 10px;
+
+    animation:
+        activityIn .25s ease;
+}
+
+@keyframes activityIn {
+    from {
+        opacity: 0;
+        transform: translateX(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.activity-icon {
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    background:
+        rgba(0,230,181,.06);
+
+    font-size: 12px;
+}
+
+.activity-item strong {
+    color:
+        var(--text);
+}
+
+
+/* ============================================================
+   THREAT CHART
+   ============================================================ */
+
+.threat-chart-box {
+    margin-top: 18px;
+
+    padding: 18px 22px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(11,24,30,.95),
+            rgba(7,17,22,.95)
+        );
+}
+
+.threat-chart-box h3 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.threat-chart-box > p {
+    margin: 4px 0 14px;
+
+    color:
+        var(--text-soft);
+
+    font-size: 10px;
+}
+
+.chart-wrap {
+    min-height: 150px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 35px;
+}
+
+.threat-chart {
+    width: 125px !important;
+    height: 125px !important;
+
+    min-width: 125px;
+
+    border-radius: 50%;
+
+    position: relative;
+
+    background:
+        conic-gradient(
+            #374151 0deg 360deg
+        );
+
+    transition:
+        background .6s ease;
+
+    flex-shrink: 0;
+}
+
+.threat-chart::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 27px;
+
+    border-radius: 50%;
+
+    background:
+        #061316;
+}
+
+.chart-legend {
+    display: grid;
+    gap: 11px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color:
+        var(--text-soft);
+
+    font-size: 11px;
+}
+
+.legend-item strong {
+    margin-left: 3px;
+
+    color:
+        var(--text);
+}
+
+.legend-dot {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+}
+
+.safe-dot {
+    background: #25e58b;
+}
+
+.suspicious-dot {
+    background: #ffc857;
+}
+
+.malicious-dot {
+    background: #ff5368;
+}
+
+
+/* ============================================================
+   SMALL UI HELPERS
+   ============================================================ */
+
+.no-data {
+    padding: 18px;
+
+    text-align: center;
+
+    color:
+        var(--text-muted);
+
+    font-size: 11px;
+}
+
+.result-section {
+    scroll-margin-top: 90px;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media(max-width:700px) {
+
+    .chart-wrap {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .activity-header {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .activity-status {
+        font-size: 8px;
+    }
+}
+</style>
+</head>
+
+
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+
+<header class="header">
+
+    <div class="container header-content">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                🛡️
+            </div>
+
+            <div>
+                <h1>SentinelURL</h1>
+                <p>URL Security Scanner</p>
+            </div>
+
+        </div>
+
+
+        <div class="header-status">
+
+            <span class="status-dot"></span>
+
+            Scanner Online
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            🛡️ AI-Powered URL Protection
+        </div>
+
+        <h2>
+            Detect Malicious URLs
+            <span>Before You Open Them</span>
+        </h2>
+
+        <p>
+            Analyze suspicious links using Machine Learning,
+            security rules and domain reputation analysis.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     SCANNER
+     ============================================================ -->
+
+<section class="scanner-card">
+
+    <div class="scanner-header">
+
+        <h2>
+            🔍 Scan a URL
+        </h2>
+
+        <p>
+            Enter a URL below to perform a complete security analysis.
+        </p>
+
+    </div>
+
+
+    <form id="scanForm">
+
+        <div class="url-input-wrapper">
+
+            <input
+                type="text"
+                id="urlInput"
+                name="url"
+                placeholder="https://example.com"
+                autocomplete="off"
+                spellcheck="false"
+                required
+            >
+
+            <button
+                type="submit"
+                id="scanButton"
+            >
+
+                <span id="scanButtonText">
+                    Scan URL
+                </span>
+
+                <span
+                    id="scanLoader"
+                    class="loader hidden"
+                ></span>
+
+            </button>
+
+        </div>
+
+    </form>
+
+
+    <div
+        id="errorMessage"
+        class="error-message hidden"
+    ></div>
+
+
+    <!-- LIVE SCAN -->
+
+    <div
+        id="liveScan"
+        class="live-scan"
+    >
+
+        <div class="live-head">
+
+            <span class="live-dot"></span>
+
+            Live Security Analysis
+
+        </div>
+
+
+        <div class="progress-track">
+
+            <div
+                id="progressFill"
+                class="progress-fill"
+            ></div>
+
+        </div>
+
+
+        <div
+            id="liveText"
+            class="live-text"
+        >
+            Preparing analysis...
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     SECURITY DASHBOARD
+     ============================================================ -->
+
+<section class="dashboard-section">
+
+    <div class="section-title-row">
+
+        <div>
+
+            <h2>
+                📊 Security Dashboard
+            </h2>
+
+            <p>
+                Overview of all analyzed URLs.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="refreshStatsButton"
+            class="secondary-button"
+        >
+            ↻ Refresh
+        </button>
+
+    </div>
+
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🔎
+            </div>
+
+            <div class="stat-content">
+
+                <span>Total Scans</span>
+
+                <strong id="totalScans">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card safe-stat">
+
+            <div class="stat-icon">
+                ✅
+            </div>
+
+            <div class="stat-content">
+
+                <span>Safe</span>
+
+                <strong id="safeScans">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card suspicious-stat">
+
+            <div class="stat-icon">
+                ⚠️
+            </div>
+
+            <div class="stat-content">
+
+                <span>Suspicious</span>
+
+                <strong id="suspiciousScans">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card malicious-stat">
+
+            <div class="stat-icon">
+                🚨
+            </div>
+
+            <div class="stat-content">
+
+                <span>Malicious</span>
+
+                <strong id="maliciousScans">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- THREAT DISTRIBUTION -->
+
+    <div class="threat-chart-box">
+
+        <h3>
+            📈 Threat Distribution
+        </h3>
+
+        <p>
+            Distribution of all stored scan results.
+        </p>
+
+
+        <div class="chart-wrap">
+
+            <div
+                id="threatChart"
+                class="threat-chart"
+            ></div>
+
+
+            <div class="chart-legend">
+
+                <div class="legend-item">
+
+                    <span class="legend-dot safe-dot"></span>
+
+                    Safe
+
+                    <strong id="safeLegend">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span class="legend-dot suspicious-dot"></span>
+
+                    Suspicious
+
+                    <strong id="suspiciousLegend">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span class="legend-dot malicious-dot"></span>
+
+                    Malicious
+
+                    <strong id="maliciousLegend">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- LIVE SECURITY ACTIVITY -->
+
+    <div class="activity-box">
+
+        <div class="activity-header">
+
+            <div class="activity-title">
+
+                🛰️ Live Security Activity
+
+            </div>
+
+
+            <div class="activity-status">
+
+                <span class="activity-status-dot"></span>
+
+                SYSTEM ACTIVE
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="activityList"
+            class="activity-list"
+        >
+
+            <div class="activity-item">
+
+                <div class="activity-icon">
+                    ✓
+                </div>
+
+                <div>
+                    <strong>Scanner ready</strong>
+                    — waiting for URL analysis
+                </div>
+
+            </div>
+
+
+            <div class="activity-item">
+
+                <div class="activity-icon">
+                    🧠
+                </div>
+
+                <div>
+                    <strong>ML engine online</strong>
+                    — threat classification available
+                </div>
+
+            </div>
+
+
+            <div class="activity-item">
+
+                <div class="activity-icon">
+                    🌐
+                </div>
+
+                <div>
+                    <strong>Domain analysis online</strong>
+                    — reputation checks ready
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     RESULT
+     ============================================================ -->
+
+<section
+    id="resultSection"
+    class="result-section hidden"
+>
+
+    <div class="section-title-row">
+
+        <div>
+
+            <h2>
+                🔎 Security Analysis
+            </h2>
+
+            <p>
+                Detailed analysis of the submitted URL.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESULT CARDS -->
+
+    <div class="result-grid">
+
+
+        <div class="result-card">
+
+            <div class="result-card-icon">
+                🎯
+            </div>
+
+            <div class="result-card-content">
+
+                <span>
+                    Risk Score
+                </span>
+
+                <strong id="riskScore">
+                    0
+                </strong>
+
+                <small id="riskLevel">
+                    Low Risk
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-card">
+
+            <div class="result-card-icon">
+                🤖
+            </div>
+
+            <div class="result-card-content">
+
+                <span>
+                    Machine Learning
+                </span>
+
+                <strong id="mlResult">
+                    -
+                </strong>
+
+                <small id="mlConfidence">
+                    0%
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-card">
+
+            <div class="result-card-icon">
+                🔐
+            </div>
+
+            <div class="result-card-content">
+
+                <span>
+                    Security Rules
+                </span>
+
+                <strong id="ruleScore">
+                    0
+                </strong>
+
+                <small>
+                    Rule Score
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="result-card">
+
+            <div class="result-card-icon">
+                🌐
+            </div>
+
+            <div class="result-card-content">
+
+                <span>
+                    Domain Reputation
+                </span>
+
+                <strong id="domainStatus">
+                    Unknown
+                </strong>
+
+                <small id="domainType">
+                    Domain
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RISK VISUALIZATION -->
+
+    <div class="visualization-box">
+
+        <h3>
+            📊 Risk Visualization
+        </h3>
+
+
+        <div class="risk-bar-item">
+
+            <div class="risk-bar-header">
+
+                <span>
+                    Overall Risk
+                </span>
+
+                <strong id="overallRiskValue">
+                    0%
+                </strong>
+
+            </div>
+
+            <div class="risk-bar">
+
+                <div
+                    id="overallRiskBar"
+                    class="risk-bar-fill"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="risk-bar-item">
+
+            <div class="risk-bar-header">
+
+                <span>
+                    Machine Learning Risk
+                </span>
+
+                <strong id="mlRiskValue">
+                    0%
+                </strong>
+
+            </div>
+
+            <div class="risk-bar">
+
+                <div
+                    id="mlRiskBar"
+                    class="risk-bar-fill"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="risk-bar-item">
+
+            <div class="risk-bar-header">
+
+                <span>
+                    Rule-Based Risk
+                </span>
+
+                <strong id="ruleRiskValue">
+                    0%
+                </strong>
+
+            </div>
+
+            <div class="risk-bar">
+
+                <div
+                    id="ruleRiskBar"
+                    class="risk-bar-fill"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="risk-bar-item">
+
+            <div class="risk-bar-header">
+
+                <span>
+                    Domain Reputation
+                </span>
+
+                <strong id="domainRiskValue">
+                    -
+                </strong>
+
+            </div>
+
+            <div class="risk-bar">
+
+                <div
+                    id="domainRiskBar"
+                    class="risk-bar-fill"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ASSESSMENT -->
+
+    <div class="assessment-box">
+
+        <div class="assessment-header">
+
+            <h3>
+                🛡️ Security Assessment
+            </h3>
+
+            <span
+                id="resultBadge"
+                class="result-badge"
+            >
+                UNKNOWN
+            </span>
+
+        </div>
+
+        <p id="summaryText">
+            URL analysis will appear here.
+        </p>
+
+    </div>
+
+
+    <!-- REPORT -->
+
+    <div class="report-action-box">
+
+        <button
+            type="button"
+            id="generateReport"
+            class="secondary-button"
+        >
+            📄 Generate Security Report
+        </button>
+
+        <div
+            id="reportMessage"
+            class="report-message"
+            style="display:none;"
+        ></div>
+
+    </div>
+
+
+    <!-- URL -->
+
+    <div class="url-details-box">
+
+        <h3>
+            🔗 Analyzed URL
+        </h3>
+
+        <div
+            id="analyzedUrl"
+            class="analyzed-url"
+        >
+            -
+        </div>
+
+    </div>
+
+
+    <!-- DETECTION DETAILS -->
+
+    <div class="details-box">
+
+        <h3>
+            🔍 Detection Details
+        </h3>
+
+
+        <div class="details-grid">
+
+            <div class="detail-item">
+                <span>Site Name</span>
+                <strong id="siteName">-</strong>
+            </div>
+
+
+            <div class="detail-item">
+                <span>Domain</span>
+                <strong id="domainName">-</strong>
+            </div>
+
+
+            <div class="detail-item">
+                <span>Site Type</span>
+                <strong id="siteType">-</strong>
+            </div>
+
+
+            <div class="detail-item">
+                <span>Domain Status</span>
+                <strong id="domainStatusDetail">-</strong>
+            </div>
+
+
+            <div class="detail-item">
+                <span>ML Prediction</span>
+                <strong id="mlPredictionDetail">-</strong>
+            </div>
+
+
+            <div class="detail-item">
+                <span>ML Confidence</span>
+                <strong id="mlConfidenceDetail">-</strong>
+            </div>
+
+
+            <div class="detail-item">
+                <span>Rule Score</span>
+                <strong id="ruleScoreDetail">-</strong>
+            </div>
+
+
+            <div class="detail-item">
+                <span>ML Risk Score</span>
+                <strong id="mlScoreDetail">-</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- METHODS -->
+
+    <div class="details-box">
+
+        <h3>
+            🧠 Detection Methods
+        </h3>
+
+        <div
+            id="detectionMethods"
+            class="methods-list"
+        ></div>
+
+    </div>
+
+
+    <!-- REASONS -->
+
+    <div class="details-box">
+
+        <h3>
+            ⚠️ Detection Reasons
+        </h3>
+
+        <div
+            id="reasonsList"
+            class="reasons-list"
+        ></div>
+
+    </div>
+
+
+    <!-- ALL FEATURES -->
+
+    <div class="details-box">
+
+        <h3>
+            ⚙️ Complete URL Feature Analysis
+        </h3>
+
+        <p>
+            All extracted security features used during analysis.
+        </p>
+
+        <div
+            id="featuresGrid"
+            class="features-grid"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     HISTORY
+     ============================================================ -->
+
+<section class="dashboard-section">
+
+    <div class="section-title-row">
+
+        <div>
+
+            <h2>
+                📜 Scan History
+            </h2>
+
+            <p>
+                Recently analyzed URLs.
+            </p>
+
+        </div>
+
+
+        <div class="history-actions">
+
+            <button
+                type="button"
+                id="refreshHistoryButton"
+                class="secondary-button"
+            >
+                ↻ Refresh
+            </button>
+
+
+            <button
+                type="button"
+                id="clearHistoryButton"
+                class="danger-button"
+            >
+                🗑 Clear History
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="historyEmpty"
+        class="empty-history"
+    >
+        No URLs have been scanned yet.
+    </div>
+
+
+    <div
+        id="historyTableWrapper"
+        class="history-table-wrapper hidden"
+    >
+
+        <table class="history-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Time</th>
+                    <th>URL</th>
+                    <th>Site</th>
+                    <th>Result</th>
+                    <th>Score</th>
+                    <th>ML</th>
+                    <th>Domain</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody
+                id="historyTableBody"
+            ></tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+
+<footer class="footer">
+
+    <div>
+        🛡️ <strong>SentinelURL</strong>
+    </div>
+
+    <p>
+        AI-assisted URL security analysis.
+    </p>
+
+    <small>
+        Detection results are risk assessments and should not be
+        treated as a guarantee of safety.
+    </small>
+
+</footer>
+
+
+</main>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+
+<script>
+
+"use strict";
+
+
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+let lastScanResult = null;
+
+
+/* ============================================================
+   PAGE LOAD
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadStatistics();
+        loadHistory();
+
+    }
+);
+
+
+/* ============================================================
+   SCAN FORM
+   ============================================================ */
+
+$("scanForm").addEventListener(
+    "submit",
+    async event => {
+
+        event.preventDefault();
+
+        const url =
+            $("urlInput")
+            .value
+            .trim();
+
+
+        if (!url) {
+
+            showError(
+                "Please enter a URL."
+            );
+
+            return;
+        }
+
+
+        hideError();
+
+        setLoading(true);
+
+        await runLiveScan();
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/analyze",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                url: url
+                            })
+                    }
+                );
+
+
+            const data =
+                await safeJson(response);
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Unable to analyze URL."
+                );
+
+            }
+
+
+            lastScanResult = data;
+
+            window.lastScanResult =
+                data;
+
+
+            displayResult(data);
+
+
+            await loadStatistics();
+
+            await loadHistory();
+
+
+            completeLiveScan();
+
+
+            $("resultSection")
+                .scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+
+        } catch (error) {
+
+            stopLiveScan();
+
+            showError(
+                error.message ||
+                "Analysis failed."
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   SAFE JSON
+   ============================================================ */
+
+async function safeJson(response) {
+
+    const text =
+        await response.text();
+
+
+    try {
+
+        return JSON.parse(text);
+
+    } catch {
+
+        return {
+            error:
+                text ||
+                "Invalid server response."
+        };
+
+    }
+
+}
+
+
+/* ============================================================
+   BUTTON LOADING
+   ============================================================ */
+
+function setLoading(active) {
+
+    $("scanButton").disabled =
+        active;
+
+
+    $("scanButtonText")
+        .textContent =
+        active
+            ? "Scanning..."
+            : "Scan URL";
+
+
+    $("scanLoader")
+        .classList
+        .toggle(
+            "hidden",
+            !active
+        );
+
+}
+
+
+/* ============================================================
+   LIVE SCAN
+   ============================================================ */
+
+async function runLiveScan() {
+
+    $("liveScan")
+        .classList
+        .add("active");
+
+
+    const steps = [
+
+        [
+            15,
+            "Validating URL structure..."
+        ],
+
+        [
+            32,
+            "Parsing domain and URL components..."
+        ],
+
+        [
+            50,
+            "Extracting security features..."
+        ],
+
+        [
+            68,
+            "Running machine learning model..."
+        ],
+
+        [
+            84,
+            "Applying security rules..."
+        ],
+
+        [
+            94,
+            "Checking domain reputation..."
+        ],
+
+        [
+            98,
+            "Calculating final risk..."
+        ]
+
+    ];
+
+
+    for (
+        const [progress, message]
+        of steps
+    ) {
+
+        $("progressFill")
+            .style
+            .width =
+            progress + "%";
+
+
+        $("liveText")
+            .textContent =
+            message;
+
+
+        await wait(150);
+
+    }
+
+}
+
+
+function completeLiveScan() {
+
+    $("progressFill")
+        .style
+        .width =
+        "100%";
+
+
+    $("liveText")
+        .textContent =
+        "✓ Security analysis completed.";
+
+
+    setTimeout(
+        stopLiveScan,
+        900
+    );
+
+}
+
+
+function stopLiveScan() {
+
+    $("liveScan")
+        .classList
+        .remove("active");
+
+}
+
+
+function wait(ms) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                ms
+            )
+    );
+
+}
+
+
+/* ============================================================
+   DISPLAY RESULT
+   ============================================================ */
+
+function displayResult(data) {
+
+    $("resultSection")
+        .classList
+        .remove("hidden");
+
+
+    const score =
+        Number(data.score) || 0;
+
+
+    const mlScore =
+        Number(data.ml_score) || 0;
+
+
+    const ruleScore =
+        Number(data.rule_score) || 0;
+
+
+    $("riskScore")
+        .textContent =
+        Math.round(score);
+
+
+    $("riskLevel")
+        .textContent =
+        data.risk_level ||
+        "Unknown";
+
+
+    $("mlResult")
+        .textContent =
+        data.ml_prediction ||
+        "Unavailable";
+
+
+    $("mlConfidence")
+        .textContent =
+        (
+            Number(data.ml_confidence) ||
+            0
+        ).toFixed(1) + "%";
+
+
+    $("ruleScore")
+        .textContent =
+        Math.round(ruleScore);
+
+
+    $("domainStatus")
+        .textContent =
+        data.domain_status ||
+        "Unknown";
+
+
+    $("domainType")
+        .textContent =
+        data.site_type ||
+        "Domain";
+
+
+    $("resultBadge")
+        .textContent =
+        String(
+            data.result ||
+            "Unknown"
+        ).toUpperCase();
+
+
+    $("resultBadge")
+        .className =
+        "result-badge " +
+        resultClass(
+            data.result
+        );
+
+
+    $("summaryText")
+        .textContent =
+        data.summary ||
+        "No security summary available.";
+
+
+    $("analyzedUrl")
+        .textContent =
+        data.url ||
+        "-";
+
+
+    $("siteName")
+        .textContent =
+        data.site_name ||
+        "-";
+
+
+    $("domainName")
+        .textContent =
+        data.domain ||
+        "-";
+
+
+    $("siteType")
+        .textContent =
+        data.site_type ||
+        "-";
+
+
+    $("domainStatusDetail")
+        .textContent =
+        data.domain_status ||
+        "-";
+
+
+    $("mlPredictionDetail")
+        .textContent =
+        data.ml_prediction ||
+        "-";
+
+
+    $("mlConfidenceDetail")
+        .textContent =
+        (
+            Number(
+                data.ml_confidence
+            ) || 0
+        ).toFixed(2) + "%";
+
+
+    $("ruleScoreDetail")
+        .textContent =
+        Math.round(ruleScore);
+
+
+    $("mlScoreDetail")
+        .textContent =
+        mlScore.toFixed(2);
+
+
+    displayMethods(
+        data.detection_methods ||
+        []
+    );
+
+
+    displayReasons(
+        data.reasons ||
+        []
+    );
+
+
+    displayFeatures(
+        data.features ||
+        {}
+    );
+
+
+    updateRisk(
+        score,
+        mlScore,
+        ruleScore,
+        Boolean(
+            data.known_domain
+        )
+    );
+
+
+    addActivity(
+        "🛡️",
+        "Security analysis completed",
+        data.result ||
+        "Unknown"
+    );
+
+}
+
+
+/* ============================================================
+   RESULT CLASS
+   ============================================================ */
+
+function resultClass(result) {
+
+    const value =
+        String(
+            result || ""
+        ).toLowerCase();
+
+
+    if (
+        value ===
+        "malicious"
+    ) {
+        return "malicious";
+    }
+
+
+    if (
+        value ===
+        "suspicious"
+    ) {
+        return "suspicious";
+    }
+
+
+    if (
+        value ===
+        "safe"
+    ) {
+        return "safe";
+    }
+
+
+    return "unknown";
+
+}
+
+
+/* ============================================================
+   DETECTION METHODS
+   ============================================================ */
+
+function displayMethods(methods) {
+
+    const box =
+        $("detectionMethods");
+
+
+    box.innerHTML = "";
+
+
+    if (!methods.length) {
+
+        box.innerHTML =
+            `
+            <div class="no-data">
+                No detection methods available.
+            </div>
+            `;
+
+        return;
+    }
+
+
+    methods.forEach(
+        method => {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "method-item";
+
+
+            item.textContent =
+                "✓ " + method;
+
+
+            box.appendChild(item);
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   REASONS
+   ============================================================ */
+
+function displayReasons(reasons) {
+
+    const box =
+        $("reasonsList");
+
+
+    box.innerHTML = "";
+
+
+    if (!reasons.length) {
+
+        box.innerHTML =
+            `
+            <div class="no-data">
+                ✓ No major suspicious characteristics detected.
+            </div>
+            `;
+
+        return;
+    }
+
+
+    reasons.forEach(
+        reason => {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "reason-item";
+
+
+            const icon =
+                document.createElement(
+                    "span"
+                );
+
+
+            icon.textContent =
+                "⚠️";
+
+
+            const text =
+                document.createElement(
+                    "p"
+                );
+
+
+            text.textContent =
+                reason;
+
+
+            item.append(
+                icon,
+                text
+            );
+
+
+            box.appendChild(item);
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   FEATURES
+   ============================================================ */
+
+const featureNames = {
+
+    url_length:
+        "URL Length",
+
+    hostname_length:
+        "Hostname Length",
+
+    path_length:
+        "Path Length",
+
+    query_length:
+        "Query Length",
+
+    num_dots:
+        "Number of Dots",
+
+    num_hyphens:
+        "Number of Hyphens",
+
+    num_underscores:
+        "Number of Underscores",
+
+    num_slashes:
+        "Number of Slashes",
+
+    num_question_marks:
+        "Question Marks",
+
+    num_equals:
+        "Equals Signs",
+
+    num_ampersands:
+        "Ampersands",
+
+    num_percent:
+        "Percent Signs",
+
+    num_digits:
+        "Number of Digits",
+
+    num_special_chars:
+        "Special Characters",
+
+    has_https:
+        "HTTPS Enabled",
+
+    has_ip:
+        "IP Address",
+
+    has_at_symbol:
+        "@ Symbol",
+
+    num_subdomains:
+        "Number of Subdomains",
+
+    has_suspicious_keyword:
+        "Suspicious Keyword",
+
+    has_suspicious_tld:
+        "Suspicious TLD",
+
+    is_shortened:
+        "URL Shortener",
+
+    has_dangerous_extension:
+        "Dangerous File Extension",
+
+    has_double_slash:
+        "Double Slash"
+
+};
+
+
+const booleanFeatures =
+    new Set([
+
+        "has_https",
+
+        "has_ip",
+
+        "has_at_symbol",
+
+        "has_suspicious_keyword",
+
+        "has_suspicious_tld",
+
+        "is_shortened",
+
+        "has_dangerous_extension",
+
+        "has_double_slash"
+
+    ]);
+
+
+function displayFeatures(features) {
+
+    const box =
+        $("featuresGrid");
+
+
+    box.innerHTML = "";
+
+
+    const entries =
+        Object.entries(features);
+
+
+    if (!entries.length) {
+
+        box.innerHTML =
+            `
+            <div class="no-data">
+                No feature data available.
+            </div>
+            `;
+
+        return;
+    }
+
+
+    entries.forEach(
+        ([key, value]) => {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "feature-item";
+
+
+            const label =
+                document.createElement(
+                    "span"
+                );
+
+
+            label.textContent =
+                featureNames[key] ||
+                key.replaceAll(
+                    "_",
+                    " "
+                );
+
+
+            const val =
+                document.createElement(
+                    "strong"
+                );
+
+
+            if (
+                booleanFeatures.has(key)
+            ) {
+
+                val.textContent =
+                    Number(value) === 1
+                        ? "Yes"
+                        : "No";
+
+            } else {
+
+                val.textContent =
+                    String(value);
+
+            }
+
+
+            item.append(
+                label,
+                val
+            );
+
+
+            box.appendChild(item);
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   RISK
+   ============================================================ */
+
+function updateRisk(
+    score,
+    ml,
+    rule,
+    known
+) {
+
+    const clamp =
+        value =>
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    Number(value) || 0
+                )
+            );
+
+
+    score = clamp(score);
+
+    ml = clamp(ml);
+
+    rule = clamp(rule);
+
+
+    $("overallRiskBar")
+        .style
+        .width =
+        score + "%";
+
+
+    $("overallRiskValue")
+        .textContent =
+        Math.round(score) +
+        "%";
+
+
+    $("mlRiskBar")
+        .style
+        .width =
+        ml + "%";
+
+
+    $("mlRiskValue")
+        .textContent =
+        Math.round(ml) +
+        "%";
+
+
+    $("ruleRiskBar")
+        .style
+        .width =
+        rule + "%";
+
+
+    $("ruleRiskValue")
+        .textContent =
+        Math.round(rule) +
+        "%";
+
+
+    $("domainRiskBar")
+        .style
+        .width =
+        known
+            ? "15%"
+            : "60%";
+
+
+    $("domainRiskValue")
+        .textContent =
+        known
+            ? "Known"
+            : "Unknown";
+
+}
+
+
+/* ============================================================
+   STATISTICS
+   ============================================================ */
+
+async function loadStatistics() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/statistics",
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        const data =
+            await safeJson(
+                response
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Statistics request failed."
+            );
+
+        }
+
+
+        const stats =
+            data.statistics ||
+            data;
+
+
+        const total =
+            Number(
+                stats.total_scans
+            ) || 0;
+
+
+        const safe =
+            Number(
+                stats.safe
+            ) || 0;
+
+
+        const suspicious =
+            Number(
+                stats.suspicious
+            ) || 0;
+
+
+        const malicious =
+            Number(
+                stats.malicious
+            ) || 0;
+
+
+        $("totalScans")
+            .textContent =
+            total;
+
+
+        $("safeScans")
+            .textContent =
+            safe;
+
+
+        $("suspiciousScans")
+            .textContent =
+            suspicious;
+
+
+        $("maliciousScans")
+            .textContent =
+            malicious;
+
+
+        $("safeLegend")
+            .textContent =
+            safe;
+
+
+        $("suspiciousLegend")
+            .textContent =
+            suspicious;
+
+
+        $("maliciousLegend")
+            .textContent =
+            malicious;
+
+
+        updateThreatChart(
+            safe,
+            suspicious,
+            malicious
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Statistics error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   THREAT CHART
+   ============================================================ */
+
+function updateThreatChart(
+    safe,
+    suspicious,
+    malicious
+) {
+
+    const total =
+        safe +
+        suspicious +
+        malicious;
+
+
+    const chart =
+        $("threatChart");
+
+
+    if (!total) {
+
+        chart.style.background =
+            "conic-gradient(#374151 0deg 360deg)";
+
+        return;
+    }
+
+
+    const safeEnd =
+        safe /
+        total *
+        360;
+
+
+    const suspiciousEnd =
+        safeEnd +
+        suspicious /
+        total *
+        360;
+
+
+    chart.style.background =
+        `
+        conic-gradient(
+            #25e58b
+            0deg
+            ${safeEnd}deg,
+
+            #ffc857
+            ${safeEnd}deg
+            ${suspiciousEnd}deg,
+
+            #ff5368
+            ${suspiciousEnd}deg
+            360deg
+        )
+        `;
+
+}
+
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+
+async function loadHistory() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/history?limit=100",
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        const data =
+            await safeJson(
+                response
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "History request failed."
+            );
+
+        }
+
+
+        const history =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.history ||
+                    []
+                );
+
+
+        displayHistory(
+            history
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "History error:",
+            error
+        );
+
+
+        $("historyEmpty")
+            .textContent =
+            "Unable to load scan history.";
+
+    }
+
+}
+
+
+/* ============================================================
+   DISPLAY HISTORY
+   ============================================================ */
+
+function displayHistory(history) {
+
+    const empty =
+        $("historyEmpty");
+
+
+    const wrapper =
+        $("historyTableWrapper");
+
+
+    const tbody =
+        $("historyTableBody");
+
+
+    tbody.innerHTML = "";
+
+
+    if (!history.length) {
+
+        empty.textContent =
+            "No URLs have been scanned yet.";
+
+
+        empty.classList
+            .remove("hidden");
+
+
+        wrapper.classList
+            .add("hidden");
+
+
+        return;
+    }
+
+
+    empty.classList
+        .add("hidden");
+
+
+    wrapper.classList
+        .remove("hidden");
+
+
+    history.forEach(
+        scan => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const values = [
+
+                scan.timestamp ||
+                    "-",
+
+                scan.url ||
+                    "-",
+
+                scan.site_name ||
+                    "-",
+
+                null,
+
+                Math.round(
+                    Number(
+                        scan.score
+                    ) || 0
+                ),
+
+                scan.ml_prediction ||
+                    "-",
+
+                scan.domain ||
+                    "-"
+
+            ];
+
+
+            values.forEach(
+                (value, index) => {
+
+                    const td =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    if (index === 3) {
+
+                        const badge =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        badge.className =
+                            "history-badge " +
+                            resultClass(
+                                scan.result
+                            );
+
+
+                        badge.textContent =
+                            scan.result ||
+                            "Unknown";
+
+
+                        td.appendChild(
+                            badge
+                        );
+
+                    } else {
+
+                        td.textContent =
+                            value;
+
+
+                        if (
+                            index === 1
+                        ) {
+
+                            td.className =
+                                "history-url";
+
+
+                            td.title =
+                                scan.url ||
+                                "";
+
+                        }
+
+                    }
+
+
+                    row.appendChild(td);
+
+                }
+            );
+
+
+            tbody.appendChild(row);
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   REFRESH STATISTICS
+   ============================================================ */
+
+$("refreshStatsButton")
+    .addEventListener(
+        "click",
+        async () => {
+
+            const button =
+                $("refreshStatsButton");
+
+
+            button.disabled =
+                true;
+
+
+            button.textContent =
+                "Refreshing...";
+
+
+            await loadStatistics();
+
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                "↻ Refresh";
+
+        }
+    );
+
+
+/* ============================================================
+   REFRESH HISTORY
+   ============================================================ */
+
+$("refreshHistoryButton")
+    .addEventListener(
+        "click",
+        async () => {
+
+            const button =
+                $("refreshHistoryButton");
+
+
+            button.disabled =
+                true;
+
+
+            button.textContent =
+                "Refreshing...";
+
+
+            await loadHistory();
+
+            await loadStatistics();
+
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                "↻ Refresh";
+
+        }
+    );
+
+
+/* ============================================================
+   CLEAR HISTORY
+   ============================================================ */
+
+$("clearHistoryButton")
+    .addEventListener(
+        "click",
+        async () => {
+
+            if (
+                !confirm(
+                    "Are you sure you want to clear all scan history?"
+                )
+            ) {
+                return;
+            }
+
+
+            const button =
+                $("clearHistoryButton");
+
+
+            button.disabled =
+                true;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/history",
+                        {
+                            method:
+                                "DELETE",
+
+                            cache:
+                                "no-store"
+                        }
+                    );
+
+
+                const data =
+                    await safeJson(
+                        response
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Unable to clear history."
+                    );
+
+                }
+
+
+                await loadHistory();
+
+                await loadStatistics();
+
+
+                addActivity(
+                    "🗑️",
+                    "Scan history cleared",
+                    "Dashboard reset"
+                );
+
+
+            } catch (error) {
+
+                showError(
+                    error.message
+                );
+
+            } finally {
+
+                button.disabled =
+                    false;
+
+            }
+
+        }
+    );
+
+
+/* ============================================================
+   LIVE ACTIVITY
+   ============================================================ */
+
+function addActivity(
+    icon,
+    title,
+    detail
+) {
+
+    const list =
+        $("activityList");
+
+
+    const item =
+        document.createElement(
+            "div"
+        );
+
+
+    item.className =
+        "activity-item";
+
+
+    item.innerHTML =
+        `
+        <div class="activity-icon">
+            ${icon}
+        </div>
+
+        <div>
+            <strong>
+                ${escapeHtml(title)}
+            </strong>
+            —
+            ${escapeHtml(detail)}
+        </div>
+        `;
+
+
+    list.prepend(item);
+
+
+    while (
+        list.children.length >
+        5
+    ) {
+
+        list.removeChild(
+            list.lastElementChild
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   ESCAPE HTML
+   ============================================================ */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+function showError(message) {
+
+    $("errorMessage")
+        .textContent =
+        message;
+
+
+    $("errorMessage")
+        .classList
+        .remove("hidden");
+
+}
+
+
+function hideError() {
+
+    $("errorMessage")
+        .textContent =
+        "";
+
+
+    $("errorMessage")
+        .classList
+        .add("hidden");
+
+}
+
+</script>
+
+
+<!-- REPORT JS -->
+
+<script
+    src="{{ url_for('static', filename='js/report.js') }}"
+></script>
+
+
+</body>
+</html>

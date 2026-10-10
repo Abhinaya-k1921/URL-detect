@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SentinelURL Security Report</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b1120;
+            color: #e5e7eb;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        .header {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 32px;
+            color: #38bdf8;
+        }
+
+        .header p {
+            margin: 5px 0;
+            color: #9ca3af;
+        }
+
+        .risk-card {
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid #1f2937;
+            background: #111827;
+        }
+
+        .risk-card.safe {
+            border-left: 6px solid #22c55e;
+        }
+
+        .risk-card.suspicious {
+            border-left: 6px solid #f59e0b;
+        }
+
+        .risk-card.malicious {
+            border-left: 6px solid #ef4444;
+        }
+
+        .risk-card.unknown {
+            border-left: 6px solid #64748b;
+        }
+
+        .risk-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .score {
+            font-size: 42px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .section {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            color: #38bdf8;
+            font-size: 22px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .item {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .item strong {
+            display: block;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .item span {
+            color: #f8fafc;
+            word-break: break-word;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 22px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        th {
+            color: #38bdf8;
+            background: #0f172a;
+        }
+
+        td {
+            color: #d1d5db;
+        }
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            padding: 25px;
+            font-size: 13px;
+        }
+
+        .notice {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 15px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 94%;
+                margin: 20px auto;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+
+            .score {
+                font-size: 34px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>SentinelURL</h1>
+        <p>Malicious URL Detection & Security Analysis Report</p>
+        <p>Generated: 30 September 2026, 12:08:49 AM</p>
+    </div>
+
+    <div class="risk-card malicious">
+        <div class="risk-title">
+            Malicious
+        </div>
+
+        <div>
+            Risk Level:
+            <strong>High</strong>
+        </div>
+
+        <div class="score">
+            Security Score: 75/100
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>URL Information</h2>
+
+        <div class="grid">
+
+            <div class="item">
+                <strong>URL</strong>
+                <span>http://192.168.1.1/login</span>
+            </div>
+
+            <div class="item">
+                <strong>Site Name</strong>
+                <span>IP Address</span>
+            </div>
+
+            <div class="item">
+                <strong>Domain</strong>
+                <span>192.168.1.1</span>
+            </div>
+
+            <div class="item">
+                <strong>Site Type</strong>
+                <span>IP Address</span>
+            </div>
+
+            <div class="item">
+                <strong>Domain Status</strong>
+                <span>IP Address</span>
+            </div>
+
+            <div class="item">
+                <strong>Known Domain</strong>
+                <span>
+                    False
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Detection Analysis</h2>
+
+        <div class="grid">
+
+            <div class="item">
+                <strong>ML Prediction</strong>
+                <span>Malicious</span>
+            </div>
+
+            <div class="item">
+                <strong>ML Confidence</strong>
+                <span>100%</span>
+            </div>
+
+            <div class="item">
+                <strong>ML Risk Score</strong>
+                <span>100</span>
+            </div>
+
+            <div class="item">
+                <strong>Rule-Based Score</strong>
+                <span>45</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Detection Methods</h2>
+
+        <ul>
+            <li>Machine Learning</li><li>Rule-Based Analysis</li><li>Domain Reputation</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Security Findings</h2>
+
+        <ul>
+            <li>The URL does not use HTTPS.</li><li>The URL uses an IP address instead of a normal domain.</li><li>Suspicious keywords detected: login</li><li>Machine learning model detected malicious characteristics with 100.0% malicious probability.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>URL Feature Analysis</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                
+            <tr>
+                <td>Has At Symbol</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Has Dangerous Extension</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Has Double Slash</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Has Https</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Has Ip</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>Has Suspicious Keyword</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>Has Suspicious Tld</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Hostname Length</td>
+                <td>11</td>
+            </tr>
+            
+            <tr>
+                <td>Is Shortened</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Num Ampersands</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Num Digits</td>
+                <td>8</td>
+            </tr>
+            
+            <tr>
+                <td>Num Dots</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>Num Equals</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Num Hyphens</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Num Percent</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Num Question Marks</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Num Slashes</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>Num Special Chars</td>
+                <td>7</td>
+            </tr>
+            
+            <tr>
+                <td>Num Subdomains</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>Num Underscores</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Path Length</td>
+                <td>6</td>
+            </tr>
+            
+            <tr>
+                <td>Query Length</td>
+                <td>0</td>
+            </tr>
+            
+            <tr>
+                <td>Url Length</td>
+                <td>24</td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Security Notice</h2>
+
+        <div class="notice">
+            This report is generated from automated machine-learning
+            and rule-based URL analysis. Detection results are
+            indicators and should not be treated as a guarantee
+            that a URL is safe or malicious.
+        </div>
+    </div>
+
+    <div class="footer">
+        SentinelURL &copy; 2026
+        <br>
+        Automated URL Security Analysis System
+    </div>
+
+</div>
+
+</body>
+</html>
